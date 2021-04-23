@@ -326,24 +326,29 @@ pri <- function(type,...){
 #' data respectively. This is done to ensure constant variance below and above observed data.
 #'@references Birgir Hrafnkelsson, Helgi Sigurdarson and Sigurdur M. Gardarson (2015) \emph{Bayesian Generalized Rating Curves}
 h_unobserved <- function(RC,h_min=NA,h_max=NA){
-  h_u=NULL
-  h=100*c(RC$h) #work in cm
-  max_h_diff=5
-  #distance between subsequent elements in vector with additional dummy point 1000
-  distvect=abs(h-c(h[2:length(h)],1000))
-  #add datapoints to corresponding distances to see range of distance
-  distwithdata=rbind(h,distvect,c(h[2:length(h)],1000))
-  distfilter=distwithdata[,distvect>max_h_diff]
-  #remove dummy distance
-  distfilter=as.matrix(distfilter[,-ncol(distfilter)])
-  if(ncol(distfilter)!=0){
+  h_u <- NULL
+  # work in cm
+  h <- 100 * c(RC$h)
+  max_h_diff <- 5
+  # distance between subsequent elements in vector with additional dummy point 1000
+  distvect <- abs(h - c(h[2:length(h)], 1000))
+  # add datapoints to corresponding distances to see range of distance
+  distwithdata <- rbind(h, distvect, c(h[2:length(h)], 1000))
+  distfilter <- distwithdata[, distvect > max_h_diff, drop = F]
+  # remove dummy distance,
+  distfilter <- as.matrix(distfilter[, -ncol(distfilter)])
+  if(ncol(distfilter)!= 0){
     #make sequence from the ranges with length.out equal to corresponding elelement in distvect
-    h_u=0.01*unlist(apply(distfilter,2,FUN=function(x){setdiff(seq(x[1],x[3],length.out=2+ceiling(x[2]/max_h_diff)),c(x[1],x[3]))
-    }))
+    h_u <- 0.01 * unlist(apply(distfilter, 2,
+                               FUN = function(x) {
+                                 setdiff(seq(x[1], x[3], length.out = 2 + ceiling(x[2] / max_h_diff)), c(x[1], x[3]))
+                                 }
+                               )
+                         )
   }
-  h_before_data=setdiff(seq(h_min,RC$h_min,by=0.05),c(RC$h_min))
-  h_after_data=setdiff(seq(RC$h_max,h_max,length.out=2+ceiling(20*(h_max-RC$h_max))),RC$h_max)
-  h_u=c(h_before_data,h_u,h_after_data)
+  h_before_data <- setdiff(seq(h_min, RC$h_min, by = 0.05), c(RC$h_min))
+  h_after_data <- setdiff(seq(RC$h_max, h_max, length.out = 2 + ceiling(20 * (h_max - RC$h_max))), RC$h_max)
+  h_u <- c(h_before_data, h_u, h_after_data)
   return(h_u)
 }
 
